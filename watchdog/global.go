@@ -21,3 +21,7 @@
 */
 
 package watchdog
+
+func NewWatchDog() Woof {
+	return &WatchDog{}
+}

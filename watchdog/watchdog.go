@@ -27,8 +27,12 @@ import (
 	"time"
 )
 
-type Locker interface {
-	Lock(ctx context.Context, k string, dur time.Duration) error
-	Unlock() error
+type Woof interface {
+	Locker
 	Watch(ctx context.Context, k string, dur time.Duration)
+}
+
+type Locker interface {
+	Lock(ctx context.Context, k string, v interface{}, dur time.Duration) error
+	Unlock(ctx context.Context, k string) error
 }
