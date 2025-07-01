@@ -23,9 +23,10 @@
 package xbuilder
 
 import (
-	"github.com/qiguanzhu/infra/seele/zsql"
 	"reflect"
 	"strconv"
+
+	"github.com/xneogo/zion/xsql/factory"
 )
 
 type resultResolve struct {
@@ -76,27 +77,27 @@ func (a agBuilder) Symbol() string {
 }
 
 // AggregateCount count(col)
-func AggregateCount(col string) zsql.AggregateSymbolBuilder {
+func AggregateCount(col string) factory.AggregateSymbolBuilder {
 	return agBuilder("count(" + col + ")")
 }
 
 // AggregateSum sum(col)
-func AggregateSum(col string) zsql.AggregateSymbolBuilder {
+func AggregateSum(col string) factory.AggregateSymbolBuilder {
 	return agBuilder("sum(" + col + ")")
 }
 
 // AggregateAvg avg(col)
-func AggregateAvg(col string) zsql.AggregateSymbolBuilder {
+func AggregateAvg(col string) factory.AggregateSymbolBuilder {
 	return agBuilder("avg(" + col + ")")
 }
 
 // AggregateMax max(col)
-func AggregateMax(col string) zsql.AggregateSymbolBuilder {
+func AggregateMax(col string) factory.AggregateSymbolBuilder {
 	return agBuilder("max(" + col + ")")
 }
 
 // AggregateMin min(col)
-func AggregateMin(col string) zsql.AggregateSymbolBuilder {
+func AggregateMin(col string) factory.AggregateSymbolBuilder {
 	return agBuilder("min(" + col + ")")
 }
 

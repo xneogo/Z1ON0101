@@ -20,11 +20,11 @@
  @Description: database.go
 */
 
-package zsql
+package xsql
 
 import (
 	"database/sql"
-	"github.com/qiguanzhu/infra/pkg/consts"
+	"github.com/xneogo/zion/xsql/sqlutils"
 	"time"
 )
 
@@ -45,22 +45,22 @@ type MysqlConf struct {
 
 func (c *MysqlConf) LoadDefault(insName string) {
 	if c.TimeoutMsec == 0 {
-		c.TimeoutMsec = consts.DefaultTimeoutSecond
+		c.TimeoutMsec = sqlutils.DefaultTimeoutSecond
 	}
 	if c.ReadTimeoutMsec == 0 {
-		c.ReadTimeoutMsec = consts.DefaultReadTimeoutSecond
+		c.ReadTimeoutMsec = sqlutils.DefaultReadTimeoutSecond
 	}
 	if c.WriteTimeoutMsec == 0 {
-		c.WriteTimeoutMsec = consts.DefaultWriteTimeoutSecond
+		c.WriteTimeoutMsec = sqlutils.DefaultWriteTimeoutSecond
 	}
 	if c.MaxLifeTimeSec == 0 {
-		c.MaxLifeTimeSec = consts.DefaultMaxLifeTimeSecond
+		c.MaxLifeTimeSec = sqlutils.DefaultMaxLifeTimeSecond
 	}
 	if c.MaxIdleConns == 0 {
-		c.MaxIdleConns = consts.DefaultMaxIdleConns
+		c.MaxIdleConns = sqlutils.DefaultMaxIdleConns
 	}
 	if c.MaxOpenConns == 0 {
-		c.MaxOpenConns = consts.DefaultMaxOpenConns
+		c.MaxOpenConns = sqlutils.DefaultMaxOpenConns
 	}
 
 }

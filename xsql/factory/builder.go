@@ -17,7 +17,7 @@
  @Time    : 2025/7/1 -- 17:01
  @Author  : 亓官竹 ❤️ MONEY
  @Copyright 2025 亓官竹
- @Description: proxy xsql/proxy/builder.go
+ @Description: factory xsql/factory/builder.go
 */
 
 package factory

@@ -21,3 +21,45 @@
 */
 
 package xcondition
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/xneogo/zion/xsql/factory"
+)
+
+type Condition struct {
+	cons map[string]interface{}
+}
+
+func New() factory.ConditionsProxy {
+	return &Condition{
+		cons: make(map[string]interface{}),
+	}
+}
+
+// NewChanges is same as NewCondition used for updates
+func NewChanges() factory.ConditionsProxy {
+	return &Condition{
+		cons: make(map[string]interface{}),
+	}
+}
+
+func (c *Condition) Set(column string, value interface{}) factory.ConditionsProxy {
+	c.cons[column] = value
+	return c
+}
+func (c *Condition) Export() map[string]interface{} {
+	if c.cons == nil {
+		c.cons = make(map[string]interface{})
+	}
+	return c.cons
+}
+func (c *Condition) ToString() string {
+	var cond []string
+	for k, v := range c.cons {
+		cond = append(cond, fmt.Sprintf("%s=%v", k, v))
+	}
+	return strings.Join(cond, "-")
+}

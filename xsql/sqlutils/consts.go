@@ -20,7 +20,7 @@
  @Description: xsql xsql/consts.go
 */
 
-package xsql
+package sqlutils
 
 const (
 	// MysqlConfNamespace mysql apollo conf namespace

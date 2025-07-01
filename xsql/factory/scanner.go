@@ -17,7 +17,7 @@
  @Time    : 2025/7/1 -- 16:52
  @Author  : 亓官竹 ❤️ MONEY
  @Copyright 2025 亓官竹
- @Description: proxy xsql/proxy/scanner.go
+ @Description: factory xsql/factory/scanner.go
 */
 
 package factory

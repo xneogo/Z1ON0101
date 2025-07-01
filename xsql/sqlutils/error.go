@@ -20,7 +20,7 @@
  @Description: error.go
 */
 
-package xsql
+package sqlutils
 
 import (
 	"errors"

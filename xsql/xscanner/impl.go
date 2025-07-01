@@ -17,7 +17,7 @@
  @Time    : 2025/7/1 -- 16:52
  @Author  : 亓官竹 ❤️ MONEY
  @Copyright 2025 亓官竹
- @Description: xscanner xsql/xscanner/x_impl.go
+ @Description: xscanner xsql/xscanner/impl.go
 */
 
 package xscanner
@@ -25,15 +25,14 @@ package xscanner
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/qiguanzhu/infra/nerv/magi/xreflect"
-	"github.com/qiguanzhu/infra/pkg"
-	"github.com/qiguanzhu/infra/pkg/consts"
-	"github.com/qiguanzhu/infra/seele/zsql"
-	"github.com/qiguanzhu/infra/seele/zsql/sqlutils"
 	"reflect"
 	"runtime/debug"
 	"strconv"
 	"time"
+
+	"github.com/xneogo/extensions/xreflect"
+	"github.com/xneogo/zion/xsql/factory"
+	"github.com/xneogo/zion/xsql/sqlutils"
 )
 
 var userDefinedTagName string
@@ -48,9 +47,9 @@ func SetTagName(name string) {
 
 type XScanner struct{}
 
-func (s XScanner) Scan(rows zsql.Rows, target interface{}, _ zsql.BindFunc) error {
+func (s XScanner) Scan(rows factory.Rows, target interface{}, _ factory.BindFunc) error {
 	if nil == target || reflect.ValueOf(target).IsNil() || reflect.TypeOf(target).Kind() != reflect.Ptr {
-		return pkg.ErrScannerTargetNotSettable
+		return sqlutils.ErrScannerTargetNotSettable
 	}
 
 	data, err := sqlutils.ResolveDataFromRows(rows)
@@ -66,7 +65,7 @@ func (s XScanner) Scan(rows zsql.Rows, target interface{}, _ zsql.BindFunc) erro
 		err = bindSlice(data, target)
 	default:
 		if nil == data {
-			return pkg.ErrScannerEmptyResult
+			return sqlutils.ErrScannerEmptyResult
 		}
 		err = bind(data[0], target)
 	}
@@ -74,11 +73,11 @@ func (s XScanner) Scan(rows zsql.Rows, target interface{}, _ zsql.BindFunc) erro
 	return err
 }
 
-func (s XScanner) ScanMap(rows zsql.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMap(rows factory.Rows) ([]map[string]interface{}, error) {
 	return sqlutils.ResolveDataFromRows(rows)
 }
 
-func (s XScanner) ScanMapDecode(rows zsql.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapDecode(rows factory.Rows) ([]map[string]interface{}, error) {
 	results, err := sqlutils.ResolveDataFromRows(rows)
 	if nil != err {
 		return nil, err
@@ -109,24 +108,24 @@ func (s XScanner) ScanMapDecode(rows zsql.Rows) ([]map[string]interface{}, error
 	return results, nil
 }
 
-func (s XScanner) ScanMapDecodeClose(rows zsql.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapDecodeClose(rows factory.Rows) ([]map[string]interface{}, error) {
 	result, err := s.ScanMapDecode(rows)
 	if nil != rows {
 		errClose := rows.Close()
 		if err == nil {
-			err = pkg.NewCloseErr(errClose)
+			err = sqlutils.NewCloseErr(errClose)
 		}
 	}
 	return result, err
 }
 
 // ScanMapClose is the same as ScanMap and close the rows
-func (s XScanner) ScanMapClose(rows zsql.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapClose(rows factory.Rows) ([]map[string]interface{}, error) {
 	result, err := s.ScanMap(rows)
 	if nil != rows {
 		errClose := rows.Close()
 		if err == nil {
-			err = pkg.NewCloseErr(errClose)
+			err = sqlutils.NewCloseErr(errClose)
 		}
 	}
 	return result, err
@@ -134,12 +133,12 @@ func (s XScanner) ScanMapClose(rows zsql.Rows) ([]map[string]interface{}, error)
 
 // ScanClose is the same as Scan and helps you Close the rows
 // Don't exec the rows.Close after calling this
-func (s XScanner) ScanClose(rows zsql.Rows, target interface{}, f zsql.BindFunc) error {
+func (s XScanner) ScanClose(rows factory.Rows, target interface{}, f factory.BindFunc) error {
 	err := s.Scan(rows, target, f)
 	if nil != rows {
 		errClose := rows.Close()
 		if err == nil {
-			err = pkg.NewCloseErr(errClose)
+			err = sqlutils.NewCloseErr(errClose)
 		}
 	}
 	return err
@@ -149,7 +148,7 @@ func (s XScanner) ScanClose(rows zsql.Rows, target interface{}, f zsql.BindFunc)
 func bindSlice(arr []map[string]interface{}, target interface{}) error {
 	targetObj := reflect.ValueOf(target)
 	if !targetObj.Elem().CanSet() {
-		return pkg.ErrScannerTargetNotSettable
+		return sqlutils.ErrScannerTargetNotSettable
 	}
 	length := len(arr)
 	valueArrObj := reflect.MakeSlice(targetObj.Elem().Type(), 0, length)
@@ -179,7 +178,7 @@ func bind(result map[string]interface{}, target interface{}) (resp error) {
 	}()
 	valueObj := reflect.ValueOf(target).Elem()
 	if !valueObj.CanSet() {
-		return pkg.ErrScannerTargetNotSettable
+		return sqlutils.ErrScannerTargetNotSettable
 	}
 	typeObj := valueObj.Type()
 	if typeObj.Kind() == reflect.Ptr {
@@ -199,8 +198,8 @@ func bind(result map[string]interface{}, target interface{}) (resp error) {
 		fieldName := fieldTypeI.Name
 
 		// for convenience
-		wrapErr := func(from, to reflect.Type) pkg.ScanErr {
-			return pkg.NewScanErr(typeObjName, fieldName, from, to)
+		wrapErr := func(from, to reflect.Type) sqlutils.ScanErr {
+			return sqlutils.NewScanErr(typeObjName, fieldName, from, to)
 		}
 
 		valuei := valueObj.Field(i)
@@ -252,9 +251,9 @@ func bind(result map[string]interface{}, target interface{}) (resp error) {
 	return nil
 }
 
-var _byteUnmarshalerType = reflect.TypeOf(new(zsql.ByteUnmarshaler)).Elem()
+var _byteUnmarshalerType = reflect.TypeOf(new(factory.ByteUnmarshaler)).Elem()
 
-type convertErrWrapper func(from, to reflect.Type) pkg.ScanErr
+type convertErrWrapper func(from, to reflect.Type) sqlutils.ScanErr
 
 func isIntSeriesType(k reflect.Kind) bool {
 	return k >= reflect.Int && k <= reflect.Int64
@@ -273,7 +272,7 @@ func lookUpTagName(typeObj reflect.StructField) (string, bool) {
 	if "" != userDefinedTagName {
 		tName = userDefinedTagName
 	} else {
-		tName = consts.DefaultTagName
+		tName = sqlutils.DefaultTagName
 	}
 	name, ok := typeObj.Tag.Lookup(tName)
 	if !ok {
@@ -348,7 +347,7 @@ func convert(mapValue interface{}, valuei reflect.Value, wrapErr convertErrWrapp
 func handleConvertSlice(mapValue interface{}, mvt, vit reflect.Type, valuei *reflect.Value, wrapErr convertErrWrapper) error {
 	mapValueSlice, ok := mapValue.([]byte)
 	if !ok {
-		return pkg.ErrScannerSliceToString
+		return sqlutils.ErrScannerSliceToString
 	}
 	mapValueStr := string(mapValueSlice)
 	vitKind := vit.Kind()
@@ -384,7 +383,7 @@ func handleConvertSlice(mapValue interface{}, mvt, vit reflect.Type, valuei *ref
 			valuei.SetBool(false)
 		}
 	default:
-		if _, ok := valuei.Interface().(zsql.ByteUnmarshaler); ok {
+		if _, ok := valuei.Interface().(factory.ByteUnmarshaler); ok {
 			return byteUnmarshal(mapValueSlice, valuei, wrapErr)
 		}
 		return wrapErr(mvt, vit)
@@ -403,7 +402,7 @@ func byteUnmarshal(mapValueSlice []byte, valuei *reflect.Value, wrapErr convertE
 	} else {
 		pt = *valuei
 	}
-	err := pt.Interface().(zsql.ByteUnmarshaler).UnmarshalByte(mapValueSlice)
+	err := pt.Interface().(factory.ByteUnmarshaler).UnmarshalByte(mapValueSlice)
 	if nil != err {
 		structName := pt.Elem().Type().Name()
 		return fmt.Errorf("[scanner]: %s.UnmarshalByte fail to unmarshal the bytes, err: %s", structName, err)
@@ -416,7 +415,7 @@ func byteUnmarshal(mapValueSlice []byte, valuei *reflect.Value, wrapErr convertE
 
 func handleConvertTime(assertT time.Time, mvt, vit reflect.Type, valuei *reflect.Value, wrapErr convertErrWrapper) error {
 	if vit.Kind() == reflect.String {
-		sTime := assertT.Format(consts.CTimeFormat)
+		sTime := assertT.Format(sqlutils.CTimeFormat)
 		valuei.SetString(sTime)
 		return nil
 	}

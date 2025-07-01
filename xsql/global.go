@@ -21,3 +21,59 @@
 */
 
 package xsql
+
+import (
+	"context"
+	"github.com/xneogo/zion/xsql/sqlutils"
+
+	"github.com/pkg/errors"
+	"github.com/xneogo/zion/xsql/factory"
+	"github.com/xneogo/zion/xsql/xbuilder"
+	xmanager "github.com/xneogo/zion/xsql/xdb"
+	"github.com/xneogo/zion/xsql/xscanner"
+)
+
+var Constructor constructor
+
+type constructor struct {
+	_scanner xscanner.XScanner
+	_builder xbuilder.XBuilder
+}
+
+func init() {
+	Constructor = constructor{
+		_scanner: xscanner.XScanner{},
+		_builder: xbuilder.XBuilder{},
+	}
+}
+
+func (c constructor) GetBuilder() factory.Builder {
+	return c._builder
+}
+
+func (c constructor) GetScanner() factory.Scanner {
+	return c._scanner
+}
+
+func (c constructor) ComplexSelect(tableF func() []string, target any, query string, args ...interface{}) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		err := xmanager.SqlExecDefault(ctx, func(dbx *xmanager.DBX, tables []interface{}) error {
+			return dbx.SelectWrapper(tables, &target, query, args)
+		}, tableF()...)
+		return err
+	}
+}
+
+func (c constructor) ComplexExec(tableF func() []string, query string, args ...interface{}) func(ctx context.Context) error {
+	return func(ctx context.Context) error {
+		err := xmanager.SqlExecDefault(ctx, func(dbx *xmanager.DBX, tables []interface{}) error {
+			_, er := dbx.ExecWrapper(tables, query, args)
+			return er
+		}, tableF()...)
+		return err
+	}
+}
+
+func NotFound(err error) bool {
+	return errors.Is(err, sqlutils.ErrScannerEmptyResult)
+}

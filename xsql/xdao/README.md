@@ -1,6 +1,6 @@
 ## xdao
 
-xdao 是 /seele/xsalIface/repo.go 中 DaoModel 的标准化实现方案
+xdao 是 DaoModel 的标准化实现方案
 
 ### 快速开始
 
