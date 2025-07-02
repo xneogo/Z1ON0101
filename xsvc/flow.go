@@ -24,29 +24,29 @@ package xsvc
 
 import (
 	"github.com/xneogo/Z1ON0101/xredis"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
+	"github.com/xneogo/matrix/msql"
 )
 
 type XFlow[EntityObj any] interface {
-	Repo(factory.RepoModel[EntityObj]) *XFlowImpl[EntityObj]
-	GetRepo() factory.RepoModel[EntityObj]
+	Repo(msql.RepoModel[EntityObj]) *XFlowImpl[EntityObj]
+	GetRepo() msql.RepoModel[EntityObj]
 
 	KeyVal(*xredis.RedisClient) *XFlowImpl[EntityObj]
 	GetKeyVal() *xredis.RedisClient
 }
 
 type XFlowImpl[EntityObj any] struct {
-	Rp factory.RepoModel[EntityObj]
+	Rp msql.RepoModel[EntityObj]
 	Kv *xredis.RedisClient
 	// Mongo
 }
 
-func (f *XFlowImpl[EntityObj]) Repo(rp factory.RepoModel[EntityObj]) *XFlowImpl[EntityObj] {
+func (f *XFlowImpl[EntityObj]) Repo(rp msql.RepoModel[EntityObj]) *XFlowImpl[EntityObj] {
 	f.Rp = rp
 	return f
 }
 
-func (f *XFlowImpl[EntityObj]) GetRepo() factory.RepoModel[EntityObj] {
+func (f *XFlowImpl[EntityObj]) GetRepo() msql.RepoModel[EntityObj] {
 	return f.Rp
 }
 
