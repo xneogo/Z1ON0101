@@ -24,13 +24,13 @@ package xsql
 
 import (
 	"context"
-	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
 
 	"github.com/pkg/errors"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
 	"github.com/xneogo/Z1ON0101/xsql/xbuilder"
 	xmanager "github.com/xneogo/Z1ON0101/xsql/xdb"
 	"github.com/xneogo/Z1ON0101/xsql/xscanner"
+	"github.com/xneogo/matrix/msql"
+	"github.com/xneogo/matrix/msql/sqlutils"
 )
 
 var Constructor constructor
@@ -47,11 +47,11 @@ func init() {
 	}
 }
 
-func (c constructor) GetBuilder() factory.Builder {
+func (c constructor) GetBuilder() msql.Builder {
 	return c._builder
 }
 
-func (c constructor) GetScanner() factory.Scanner {
+func (c constructor) GetScanner() msql.Scanner {
 	return c._scanner
 }
 

@@ -31,8 +31,8 @@ import (
 	"time"
 
 	"github.com/xneogo/extensions/xreflect"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
-	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
+	"github.com/xneogo/matrix/msql"
+	"github.com/xneogo/matrix/msql/sqlutils"
 )
 
 var userDefinedTagName string
@@ -47,7 +47,7 @@ func SetTagName(name string) {
 
 type XScanner struct{}
 
-func (s XScanner) Scan(rows factory.Rows, target interface{}, _ factory.BindFunc) error {
+func (s XScanner) Scan(rows msql.Rows, target interface{}, _ msql.BindFunc) error {
 	if nil == target || reflect.ValueOf(target).IsNil() || reflect.TypeOf(target).Kind() != reflect.Ptr {
 		return sqlutils.ErrScannerTargetNotSettable
 	}
@@ -73,11 +73,11 @@ func (s XScanner) Scan(rows factory.Rows, target interface{}, _ factory.BindFunc
 	return err
 }
 
-func (s XScanner) ScanMap(rows factory.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMap(rows msql.Rows) ([]map[string]interface{}, error) {
 	return sqlutils.ResolveDataFromRows(rows)
 }
 
-func (s XScanner) ScanMapDecode(rows factory.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapDecode(rows msql.Rows) ([]map[string]interface{}, error) {
 	results, err := sqlutils.ResolveDataFromRows(rows)
 	if nil != err {
 		return nil, err
@@ -108,7 +108,7 @@ func (s XScanner) ScanMapDecode(rows factory.Rows) ([]map[string]interface{}, er
 	return results, nil
 }
 
-func (s XScanner) ScanMapDecodeClose(rows factory.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapDecodeClose(rows msql.Rows) ([]map[string]interface{}, error) {
 	result, err := s.ScanMapDecode(rows)
 	if nil != rows {
 		errClose := rows.Close()
@@ -120,7 +120,7 @@ func (s XScanner) ScanMapDecodeClose(rows factory.Rows) ([]map[string]interface{
 }
 
 // ScanMapClose is the same as ScanMap and close the rows
-func (s XScanner) ScanMapClose(rows factory.Rows) ([]map[string]interface{}, error) {
+func (s XScanner) ScanMapClose(rows msql.Rows) ([]map[string]interface{}, error) {
 	result, err := s.ScanMap(rows)
 	if nil != rows {
 		errClose := rows.Close()
@@ -133,7 +133,7 @@ func (s XScanner) ScanMapClose(rows factory.Rows) ([]map[string]interface{}, err
 
 // ScanClose is the same as Scan and helps you Close the rows
 // Don't exec the rows.Close after calling this
-func (s XScanner) ScanClose(rows factory.Rows, target interface{}, f factory.BindFunc) error {
+func (s XScanner) ScanClose(rows msql.Rows, target interface{}, f msql.BindFunc) error {
 	err := s.Scan(rows, target, f)
 	if nil != rows {
 		errClose := rows.Close()
@@ -251,7 +251,7 @@ func bind(result map[string]interface{}, target interface{}) (resp error) {
 	return nil
 }
 
-var _byteUnmarshalerType = reflect.TypeOf(new(factory.ByteUnmarshaler)).Elem()
+var _byteUnmarshalerType = reflect.TypeOf(new(msql.ByteUnmarshaler)).Elem()
 
 type convertErrWrapper func(from, to reflect.Type) sqlutils.ScanErr
 
@@ -272,7 +272,7 @@ func lookUpTagName(typeObj reflect.StructField) (string, bool) {
 	if "" != userDefinedTagName {
 		tName = userDefinedTagName
 	} else {
-		tName = sqlutils.DefaultTagName
+		tName = msql.DefaultTagName
 	}
 	name, ok := typeObj.Tag.Lookup(tName)
 	if !ok {
@@ -383,7 +383,7 @@ func handleConvertSlice(mapValue interface{}, mvt, vit reflect.Type, valuei *ref
 			valuei.SetBool(false)
 		}
 	default:
-		if _, ok := valuei.Interface().(factory.ByteUnmarshaler); ok {
+		if _, ok := valuei.Interface().(msql.ByteUnmarshaler); ok {
 			return byteUnmarshal(mapValueSlice, valuei, wrapErr)
 		}
 		return wrapErr(mvt, vit)
@@ -402,7 +402,7 @@ func byteUnmarshal(mapValueSlice []byte, valuei *reflect.Value, wrapErr convertE
 	} else {
 		pt = *valuei
 	}
-	err := pt.Interface().(factory.ByteUnmarshaler).UnmarshalByte(mapValueSlice)
+	err := pt.Interface().(msql.ByteUnmarshaler).UnmarshalByte(mapValueSlice)
 	if nil != err {
 		structName := pt.Elem().Type().Name()
 		return fmt.Errorf("[scanner]: %s.UnmarshalByte fail to unmarshal the bytes, err: %s", structName, err)
@@ -415,7 +415,7 @@ func byteUnmarshal(mapValueSlice []byte, valuei *reflect.Value, wrapErr convertE
 
 func handleConvertTime(assertT time.Time, mvt, vit reflect.Type, valuei *reflect.Value, wrapErr convertErrWrapper) error {
 	if vit.Kind() == reflect.String {
-		sTime := assertT.Format(sqlutils.CTimeFormat)
+		sTime := assertT.Format(msql.CTimeFormat)
 		valuei.SetString(sTime)
 		return nil
 	}

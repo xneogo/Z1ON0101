@@ -25,39 +25,39 @@ package xmanager
 import (
 	"context"
 	"fmt"
-	"github.com/opentracing/opentracing-go"
-	"github.com/pkg/errors"
-	"github.com/qiguanzhu/infra/nerv/magi/xreflect"
-	"github.com/qiguanzhu/infra/nerv/xlog"
-	"github.com/qiguanzhu/infra/nerv/xtrace"
-	"github.com/qiguanzhu/infra/pkg/consts"
-	"github.com/qiguanzhu/infra/seele/zconfig"
-	"github.com/qiguanzhu/infra/seele/zconfig/zobserver"
-	"github.com/qiguanzhu/infra/seele/zsql"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
+	"github.com/xneogo/Z1ON0101/xlog"
+	"github.com/xneogo/Z1ON0101/xtrace"
+	"github.com/xneogo/extensions/xreflect"
+	"github.com/xneogo/matrix/mconfig"
+	"github.com/xneogo/matrix/mconfig/mobserver"
+	"github.com/xneogo/matrix/msql"
 )
 
 // DynamicConfigure ...
 type DynamicConfigure struct {
-	mysqlConf     *zsql.Cfg
+	mysqlConf     *msql.Cfg
 	mu            sync.RWMutex
-	closeInsChan  chan zsql.ChangeIns
-	reloadInsChan chan zsql.ChangeIns
+	closeInsChan  chan msql.ChangeIns
+	reloadInsChan chan msql.ChangeIns
 }
 
 // LoadDynamicConf ...
-func (c *DynamicConfigure) LoadDynamicConf(insName string, dynamicConf *zsql.DynamicConf) {
-	config := &zsql.DynamicConf{
-		Timeout:        consts.DefaultTimeoutSecond * time.Second,
-		ReadTimeout:    consts.DefaultReadTimeoutSecond * time.Second,
-		WriteTimeout:   consts.DefaultWriteTimeoutSecond * time.Second,
-		MaxLifeTimeSec: consts.DefaultMaxLifeTimeSecond * time.Second,
-		MaxIdleConns:   consts.DefaultMaxIdleConns,
-		MaxOpenConns:   consts.DefaultMaxOpenConns,
+func (c *DynamicConfigure) LoadDynamicConf(insName string, dynamicConf *msql.DynamicConf) {
+	config := &msql.DynamicConf{
+		Timeout:        msql.DefaultTimeoutSecond * time.Second,
+		ReadTimeout:    msql.DefaultReadTimeoutSecond * time.Second,
+		WriteTimeout:   msql.DefaultWriteTimeoutSecond * time.Second,
+		MaxLifeTimeSec: msql.DefaultMaxLifeTimeSecond * time.Second,
+		MaxIdleConns:   msql.DefaultMaxIdleConns,
+		MaxOpenConns:   msql.DefaultMaxOpenConns,
 	}
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -96,7 +96,7 @@ func (c *DynamicConfigure) LoadDynamicConf(insName string, dynamicConf *zsql.Dyn
 }
 
 // SetConf ...
-func (c *DynamicConfigure) SetConf(cfg *zsql.Cfg) {
+func (c *DynamicConfigure) SetConf(cfg *msql.Cfg) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.mysqlConf = cfg
@@ -143,29 +143,29 @@ type Manager struct {
 	// 服务对应的 proxy 地址, 优先级顺序为: ENV > apollo配置 > default
 	proxyAddr        ProxyAddr
 	instanceMu       sync.RWMutex
-	instances        map[InstanceKey]zsql.DBInstanceProxy
-	dynamicConfigure zsql.DynamicConfigureProxy[*zsql.Cfg, *zsql.DynamicConf]
+	instances        map[InstanceKey]msql.DBInstanceProxy
+	dynamicConfigure msql.DynamicConfigureProxy[*msql.Cfg, *msql.DynamicConf]
 }
 
 // NewManager 实例化DB路由对象
-func NewManager() zsql.ManagerProxy {
+func NewManager() msql.ManagerProxy {
 	proxyAddr := getWeirAddrFromEnvOrDefault()
 
 	return &Manager{
 		proxyAddr:        proxyAddr,
-		instances:        make(map[InstanceKey]zsql.DBInstanceProxy),
+		instances:        make(map[InstanceKey]msql.DBInstanceProxy),
 		dynamicConfigure: &DynamicConfigure{},
 	}
 }
 
-func (m *Manager) InitConf(ctx context.Context, confCenter zconfig.ConfigCenter) error {
+func (m *Manager) InitConf(ctx context.Context, confCenter mconfig.ConfigCenter) error {
 	f := "Manager.InitConf ->"
 
 	if confCenter == nil {
 		return fmt.Errorf("init xsql conf err: configcenter nil")
 	}
-	mysqlConf := new(zsql.Cfg)
-	err := confCenter.UnmarshalWithNamespace(ctx, consts.MysqlConfNamespace, mysqlConf)
+	mysqlConf := new(msql.Cfg)
+	err := confCenter.UnmarshalWithNamespace(ctx, msql.MysqlConfNamespace, mysqlConf)
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (m *Manager) InitConf(ctx context.Context, confCenter zconfig.ConfigCenter)
 }
 
 // GetDB return xmanager.DB without transaction
-func (m *Manager) GetDB(ctx context.Context, insName, dbName string) (zsql.XDBWrapper, error) {
+func (m *Manager) GetDB(ctx context.Context, insName, dbName string) (msql.XDBWrapper, error) {
 	if !m.dynamicConfigure.IsInit() {
 		return nil, fmt.Errorf("dynamic configer not init")
 	}
@@ -193,16 +193,16 @@ func (m *Manager) GetDB(ctx context.Context, insName, dbName string) (zsql.XDBWr
 	return db, nil
 }
 
-func (m *Manager) ReloadConf(ctx context.Context, config zconfig.ConfigCenter, event zobserver.ChangeEvent) error {
+func (m *Manager) ReloadConf(ctx context.Context, config mconfig.ConfigCenter, event mobserver.ChangeEvent) error {
 	f := "Manager.ReloadConf -->"
-	if event.Namespace != consts.MysqlConfNamespace {
+	if event.Namespace != msql.MysqlConfNamespace {
 		return nil
 	}
 	if config == nil {
 		return fmt.Errorf("reload xsql conf err: configcenter nil")
 	}
-	c := new(zsql.Cfg)
-	err := config.UnmarshalWithNamespace(ctx, consts.MysqlConfNamespace, c)
+	c := new(msql.Cfg)
+	err := config.UnmarshalWithNamespace(ctx, msql.MysqlConfNamespace, c)
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (m *Manager) ReloadConf(ctx context.Context, config zconfig.ConfigCenter, e
 	return nil
 }
 
-func (m *Manager) GetInstance(insName, dbName string) (zsql.DBInstanceProxy, error) {
+func (m *Manager) GetInstance(insName, dbName string) (msql.DBInstanceProxy, error) {
 	fun := "ManagerV2 -->"
 	m.instanceMu.RLock()
 	insKey, err := CreateInstanceKey(insName, dbName)
@@ -248,7 +248,7 @@ func (m *Manager) GetInstance(insName, dbName string) (zsql.DBInstanceProxy, err
 	return newIns, nil
 }
 
-func (m *Manager) modifyProxyAddrIfNeeded(mysqlConf zsql.SqlConfigProxy) (modified bool) {
+func (m *Manager) modifyProxyAddrIfNeeded(mysqlConf msql.SqlConfigProxy) (modified bool) {
 	if !isWeirProxyHostEnvSet() {
 		if mysqlConf.IsProxyHostSet() && m.proxyAddr.Host != mysqlConf.GetProxyHost() {
 			m.setProxyHost(mysqlConf.GetProxyHost())
@@ -274,13 +274,13 @@ func (m *Manager) setProxyPort(port int) {
 	m.proxyAddr.Port = port
 }
 
-func getCloseAndReloadInsMap(event zobserver.ChangeEvent) (closeInsMap, reloadInsMap map[string]struct{}, err error) {
+func getCloseAndReloadInsMap(event mobserver.ChangeEvent) (closeInsMap, reloadInsMap map[string]struct{}, err error) {
 	insMap := make(map[string]struct{})
 	closeInsMap = make(map[string]struct{})
 	reloadInsMap = make(map[string]struct{})
 	for k, v := range event.Changes {
 		if v != nil {
-			parts := strings.Split(k, consts.KeySep)
+			parts := strings.Split(k, msql.KeySep)
 			if len(parts) < 3 {
 				continue
 			}
@@ -306,7 +306,7 @@ func (m *Manager) closeDbInstance(ctx context.Context, insNameMap map[string]str
 	for key, ins := range m.instances {
 		if _, ok := insNameMap[key.GetInstanceName()]; ok {
 			delete(m.instances, key)
-			go func(insKey InstanceKey, dbIns zsql.DBInstanceProxy) {
+			go func(insKey InstanceKey, dbIns msql.DBInstanceProxy) {
 				if err := dbIns.Close(); err == nil {
 					xlog.Infof(ctx, "%s succeed to close db, instance: %v", fun, insKey)
 				} else {
@@ -324,7 +324,7 @@ func (m *Manager) asyncCloseAllDbInstance(ctx context.Context) {
 
 	for key, ins := range m.instances {
 		delete(m.instances, key)
-		go func(insKey InstanceKey, dbIns zsql.DBInstanceProxy) {
+		go func(insKey InstanceKey, dbIns msql.DBInstanceProxy) {
 			if err := dbIns.Close(); err == nil {
 				xlog.Infof(ctx, "%s succeed to close db, instance: %v", fun, insKey)
 			} else {
@@ -341,7 +341,7 @@ func (m *Manager) reloadDbInstance(ctx context.Context, insNameMap map[string]st
 	defer m.instanceMu.Unlock()
 	for key, ins := range m.instances {
 		if _, ok := insNameMap[key.GetInstanceName()]; ok {
-			go func(insKey InstanceKey, dbIns zsql.DBInstanceProxy) {
+			go func(insKey InstanceKey, dbIns msql.DBInstanceProxy) {
 				if err := dbIns.Reload(); err == nil {
 					xlog.Infof(ctx, "%s succeed to reload db, instance: %v, dbName: %s", fun, insKey, dbIns.GetDbName())
 				} else {
@@ -356,29 +356,29 @@ func getWeirAddrFromEnvOrDefault() ProxyAddr {
 	var host string
 	var port int
 
-	envHost := os.Getenv(consts.WeirProxyHostEnv)
+	envHost := os.Getenv(msql.WeirProxyHostEnv)
 	if envHost != "" {
 		host = envHost
 	} else {
-		host = consts.WeirProxyHost
+		host = msql.WeirProxyHost
 	}
 
-	envPortStr := os.Getenv(consts.WeirProxyPortEnv)
+	envPortStr := os.Getenv(msql.WeirProxyPortEnv)
 	if envPort, err := strconv.Atoi(envPortStr); err == nil {
 		port = envPort
 	} else {
-		port = consts.WeirProxyPort
+		port = msql.WeirProxyPort
 	}
 
 	return ProxyAddr{Host: host, Port: port}
 }
 
 func isWeirProxyHostEnvSet() bool {
-	return os.Getenv(consts.WeirProxyHostEnv) != ""
+	return os.Getenv(msql.WeirProxyHostEnv) != ""
 }
 
 func isWeirProxyPortEnvSet() bool {
-	return os.Getenv(consts.WeirProxyPortEnv) != ""
+	return os.Getenv(msql.WeirProxyPortEnv) != ""
 }
 
 func setDBSpanTags(span opentracing.Span, cluster, table, stmt string) {

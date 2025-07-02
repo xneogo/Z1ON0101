@@ -24,8 +24,9 @@ package xsql
 
 import (
 	"database/sql"
-	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
 	"time"
+
+	"github.com/xneogo/matrix/msql"
 )
 
 // MysqlConf ...
@@ -45,22 +46,22 @@ type MysqlConf struct {
 
 func (c *MysqlConf) LoadDefault(insName string) {
 	if c.TimeoutMsec == 0 {
-		c.TimeoutMsec = sqlutils.DefaultTimeoutSecond
+		c.TimeoutMsec = msql.DefaultTimeoutSecond
 	}
 	if c.ReadTimeoutMsec == 0 {
-		c.ReadTimeoutMsec = sqlutils.DefaultReadTimeoutSecond
+		c.ReadTimeoutMsec = msql.DefaultReadTimeoutSecond
 	}
 	if c.WriteTimeoutMsec == 0 {
-		c.WriteTimeoutMsec = sqlutils.DefaultWriteTimeoutSecond
+		c.WriteTimeoutMsec = msql.DefaultWriteTimeoutSecond
 	}
 	if c.MaxLifeTimeSec == 0 {
-		c.MaxLifeTimeSec = sqlutils.DefaultMaxLifeTimeSecond
+		c.MaxLifeTimeSec = msql.DefaultMaxLifeTimeSecond
 	}
 	if c.MaxIdleConns == 0 {
-		c.MaxIdleConns = sqlutils.DefaultMaxIdleConns
+		c.MaxIdleConns = msql.DefaultMaxIdleConns
 	}
 	if c.MaxOpenConns == 0 {
-		c.MaxOpenConns = sqlutils.DefaultMaxOpenConns
+		c.MaxOpenConns = msql.DefaultMaxOpenConns
 	}
 
 }

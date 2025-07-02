@@ -24,9 +24,9 @@ package xbuilder
 
 import (
 	"context"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
 
-	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
+	"github.com/xneogo/matrix/msql"
+	"github.com/xneogo/matrix/msql/sqlutils"
 )
 
 type XBuilder struct{}
@@ -83,7 +83,7 @@ func (b XBuilder) BuildReplaceIgnore(tableName string, data []map[string]interfa
 	return sqlutils.BuildInsert(tableName, data, sqlutils.ReplaceInsert)
 }
 
-func (b XBuilder) AggregateQuery(ctx context.Context, db factory.XDB, tableName string, where map[string]interface{}, aggregate factory.AggregateSymbolBuilder) (factory.ResultResolver, error) {
+func (b XBuilder) AggregateQuery(ctx context.Context, db msql.XDB, tableName string, where map[string]interface{}, aggregate msql.AggregateSymbolBuilder) (msql.ResultResolver, error) {
 	cond, vals, err := b.BuildSelect(tableName, where, []string{aggregate.Symbol()})
 	if nil != err {
 		return resultResolve{0}, err

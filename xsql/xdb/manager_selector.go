@@ -25,15 +25,15 @@ package xmanager
 import (
 	"context"
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/qiguanzhu/infra/nerv/xlog"
-	"github.com/qiguanzhu/infra/pkg/consts"
-	"github.com/qiguanzhu/infra/seele/zconfig"
-	"github.com/qiguanzhu/infra/seele/zconfig/zobserver"
-	"github.com/qiguanzhu/infra/seele/zsql"
-	"gopkg.in/yaml.v3"
 	"os"
 	"sync"
+
+	"github.com/kelseyhightower/envconfig"
+	"github.com/xneogo/Z1ON0101/xlog"
+	"github.com/xneogo/matrix/mconfig"
+	"github.com/xneogo/matrix/mconfig/mobserver"
+	"github.com/xneogo/matrix/msql"
+	"gopkg.in/yaml.v3"
 )
 
 const configTypeKey = "configType"
@@ -73,11 +73,11 @@ func (m *DbManagerSelectorConfiger) GetManagerInfo() (key1 string, key2 string) 
 	return m.cfg.NewManagerInsName, m.cfg.NewManagerDbName
 }
 
-func (m *DbManagerSelectorConfiger) loadConfigFromApollo(ctx context.Context, confCenter zconfig.ConfigCenter) error {
+func (m *DbManagerSelectorConfiger) loadConfigFromApollo(ctx context.Context, confCenter mconfig.ConfigCenter) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	cfg := new(dbManagerSelectorConfig)
-	err := confCenter.UnmarshalWithNamespace(ctx, consts.MysqlConfNamespace, cfg)
+	err := confCenter.UnmarshalWithNamespace(ctx, msql.MysqlConfNamespace, cfg)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (m *DbManagerSelectorConfiger) loadConfigFromApollo(ctx context.Context, co
 	return nil
 }
 
-func (m *DbManagerSelectorConfiger) loadConfigFromEnv(ctx context.Context, _ zconfig.ConfigCenter) error {
+func (m *DbManagerSelectorConfiger) loadConfigFromEnv(ctx context.Context, _ mconfig.ConfigCenter) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	cfg := new(dbManagerSelectorConfig)
@@ -97,7 +97,7 @@ func (m *DbManagerSelectorConfiger) loadConfigFromEnv(ctx context.Context, _ zco
 	return nil
 }
 
-func (m *DbManagerSelectorConfiger) loadConfigFromYaml(ctx context.Context, _ zconfig.ConfigCenter) error {
+func (m *DbManagerSelectorConfiger) loadConfigFromYaml(ctx context.Context, _ mconfig.ConfigCenter) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	cfg := new(dbManagerSelectorConfig)
@@ -120,7 +120,7 @@ func (m *DbManagerSelectorConfiger) loadConfigFromYaml(ctx context.Context, _ zc
 }
 
 type DbManagerSelector struct {
-	newDbManager zsql.ManagerProxy
+	newDbManager msql.ManagerProxy
 	configer     *DbManagerSelectorConfiger
 }
 
@@ -133,7 +133,7 @@ func NewDbManagerSelector() (*DbManagerSelector, error) {
 }
 
 // InitDbManagerConf init db dynamic conf
-func (m *DbManagerSelector) InitDbManagerConf(ctx context.Context, configCenter zconfig.ConfigCenter) error {
+func (m *DbManagerSelector) InitDbManagerConf(ctx context.Context, configCenter mconfig.ConfigCenter) error {
 	if configCenter == nil {
 		return fmt.Errorf("init xsql conf err: configcenter nil")
 	}
@@ -149,7 +149,7 @@ func (m *DbManagerSelector) InitDbManagerConf(ctx context.Context, configCenter 
 }
 
 // ReloadDbManagerConf reload db conf when change
-func (m *DbManagerSelector) ReloadDbManagerConf(ctx context.Context, configCenter zconfig.ConfigCenter, event zobserver.ChangeEvent) error {
+func (m *DbManagerSelector) ReloadDbManagerConf(ctx context.Context, configCenter mconfig.ConfigCenter, event mobserver.ChangeEvent) error {
 	fun := "DbManagerSelector -->"
 	for k, v := range event.Changes {
 		if k == configTypeKey {
@@ -183,7 +183,7 @@ func (m *DbManagerSelector) ReloadDbManagerConf(ctx context.Context, configCente
 }
 
 // GetDBDefault in newManager key1: insName, key2: dbname
-func (m *DbManagerSelector) GetDBDefault(ctx context.Context) (db zsql.XDBWrapper, err error) {
+func (m *DbManagerSelector) GetDBDefault(ctx context.Context) (db msql.XDBWrapper, err error) {
 	if m.configer == nil || !m.configer.IsInitialized() {
 		return nil, fmt.Errorf("the DB config not initialized")
 	}

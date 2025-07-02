@@ -26,12 +26,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/qiguanzhu/infra/nerv/xlog"
-	"github.com/qiguanzhu/infra/pkg/consts"
-	"github.com/qiguanzhu/infra/seele/zsql"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/xneogo/Z1ON0101/xlog"
+	"github.com/xneogo/matrix/msql"
 )
 
 // DBInstance ...
@@ -45,7 +45,7 @@ type DBInstance struct {
 	userName         string
 	passWord         string
 	db               *sql.DB
-	dynamicConfigure zsql.DynamicConfigureProxy[*zsql.Cfg, *zsql.DynamicConf]
+	dynamicConfigure msql.DynamicConfigureProxy[*msql.Cfg, *msql.DynamicConf]
 }
 
 // GetType ...
@@ -65,7 +65,7 @@ func (m *DBInstance) Close() error {
 
 // Reload ...
 func (m *DBInstance) Reload() error {
-	dynamicConf := new(zsql.DynamicConf)
+	dynamicConf := new(msql.DynamicConf)
 	m.dynamicConfigure.LoadDynamicConf(m.insName, dynamicConf)
 	m.db.SetMaxIdleConns(dynamicConf.MaxIdleConns)
 	m.db.SetMaxOpenConns(dynamicConf.MaxOpenConns)
@@ -81,7 +81,7 @@ func (m *DBInstance) GetDB() *sql.DB {
 	return m.db
 }
 
-func concatDSN(settings []zsql.Setting) string {
+func concatDSN(settings []msql.Setting) string {
 	s := ""
 	for _, f := range settings {
 		s = f(s)
@@ -89,23 +89,23 @@ func concatDSN(settings []zsql.Setting) string {
 	return strings.TrimRight(s, "&")
 }
 
-func realDSN(info *zsql.Option) string {
+func realDSN(info *msql.Option) string {
 	format := "%s:%s@tcp(%s:%d)/%s?%s"
 	return strings.TrimRight(fmt.Sprintf(format,
 		info.GetUser(), info.GetPassword(), info.GetHost(), info.GetPort(), info.GetDbName(), concatDSN(info.GetSettings())), "?")
 }
 
-func open(o *zsql.Option) (*sql.DB, error) {
+func open(o *msql.Option) (*sql.DB, error) {
 	return sql.Open(o.GetDriver(), realDSN(o))
 }
 
-func openFromDsn(o *zsql.Option, dsn string) (*sql.DB, error) {
+func openFromDsn(o *msql.Option, dsn string) (*sql.DB, error) {
 	return sql.Open(o.GetDriver(), dsn)
 }
 
 // NewDBInstance 实例化DB实例
-func NewDBInstance(addr ProxyAddr, insKey *InstanceKey, dynamicConfigure zsql.DynamicConfigureProxy[*zsql.Cfg, *zsql.DynamicConf]) (*DBInstance, error) {
-	dynamicConf := new(zsql.DynamicConf)
+func NewDBInstance(addr ProxyAddr, insKey *InstanceKey, dynamicConfigure msql.DynamicConfigureProxy[*msql.Cfg, *msql.DynamicConf]) (*DBInstance, error) {
+	dynamicConf := new(msql.DynamicConf)
 	dynamicConfigure.LoadDynamicConf(insKey.GetInstanceName(), dynamicConf)
 	var err error
 	if dynamicConf == nil {
@@ -122,7 +122,7 @@ func NewDBInstance(addr ProxyAddr, insKey *InstanceKey, dynamicConfigure zsql.Dy
 	instance := &DBInstance{
 		insName:          insKey.instanceName,
 		group:            "",
-		dbType:           consts.DefaultDbType,
+		dbType:           msql.DefaultDbType,
 		dbName:           insKey.dbName,
 		dbAddr:           addr.Host,
 		userName:         dynamicConf.Username,

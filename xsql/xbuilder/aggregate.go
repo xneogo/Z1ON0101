@@ -26,7 +26,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/xneogo/Z1ON0101/xsql/factory"
+	"github.com/xneogo/matrix/msql"
 )
 
 type resultResolve struct {
@@ -77,27 +77,27 @@ func (a agBuilder) Symbol() string {
 }
 
 // AggregateCount count(col)
-func AggregateCount(col string) factory.AggregateSymbolBuilder {
+func AggregateCount(col string) msql.AggregateSymbolBuilder {
 	return agBuilder("count(" + col + ")")
 }
 
 // AggregateSum sum(col)
-func AggregateSum(col string) factory.AggregateSymbolBuilder {
+func AggregateSum(col string) msql.AggregateSymbolBuilder {
 	return agBuilder("sum(" + col + ")")
 }
 
 // AggregateAvg avg(col)
-func AggregateAvg(col string) factory.AggregateSymbolBuilder {
+func AggregateAvg(col string) msql.AggregateSymbolBuilder {
 	return agBuilder("avg(" + col + ")")
 }
 
 // AggregateMax max(col)
-func AggregateMax(col string) factory.AggregateSymbolBuilder {
+func AggregateMax(col string) msql.AggregateSymbolBuilder {
 	return agBuilder("max(" + col + ")")
 }
 
 // AggregateMin min(col)
-func AggregateMin(col string) factory.AggregateSymbolBuilder {
+func AggregateMin(col string) msql.AggregateSymbolBuilder {
 	return agBuilder("min(" + col + ")")
 }
 

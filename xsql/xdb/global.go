@@ -27,14 +27,15 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
-	"github.com/qiguanzhu/infra/nerv/magi/xbreaker"
-	"github.com/qiguanzhu/infra/seele/zconfig"
-	"github.com/qiguanzhu/infra/seele/zconfig/zobserver"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
 	"github.com/xneogo/eins/colorlog"
+	"github.com/xneogo/extensions/xbreaker"
 	"github.com/xneogo/extensions/xtime"
+	"github.com/xneogo/matrix/mconfig"
+	"github.com/xneogo/matrix/mconfig/mobserver"
+	"github.com/xneogo/matrix/msql"
 )
 
 // DBX mapper dbrouter DB
@@ -66,17 +67,17 @@ func init() {
 }
 
 // GetDBDefault generalization of GetDB in Manager
-func GetDBDefault(ctx context.Context) (factory.XDBWrapper, error) {
+func GetDBDefault(ctx context.Context) (msql.XDBWrapper, error) {
 	return dbManagerSelector.GetDBDefault(ctx)
 }
 
 // InitDBConf init db dynamic conf
-func InitDBConf(ctx context.Context, confCenter zconfig.ConfigCenter) error {
+func InitDBConf(ctx context.Context, confCenter mconfig.ConfigCenter) error {
 	return dbManagerSelector.InitDbManagerConf(ctx, confCenter)
 }
 
 // ReloadDBConf reload db conf when change
-func ReloadDBConf(ctx context.Context, confCenter zconfig.ConfigCenter, event zobserver.ChangeEvent) error {
+func ReloadDBConf(ctx context.Context, confCenter mconfig.ConfigCenter, event mobserver.ChangeEvent) error {
 	return dbManagerSelector.ReloadDbManagerConf(ctx, confCenter, event)
 }
 

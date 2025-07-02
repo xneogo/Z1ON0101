@@ -26,21 +26,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/xneogo/Z1ON0101/xsql/factory"
-	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
+
+	"github.com/xneogo/Z1ON0101/xlog"
 	"github.com/xneogo/Z1ON0101/xsql/xbuilder"
+	"github.com/xneogo/matrix/msql"
+	"github.com/xneogo/matrix/msql/sqlutils"
 )
 
 type XDao[DObj any] interface {
-	factory.DaoModel[DObj]
+	msql.DaoModel[DObj]
 }
 
 type DefaultDao[DObj any] struct {
 	tableName func() string
 	omits     func() []string
-	_scanner  factory.Scanner
-	_builder  factory.Builder
-	bind      factory.BindFunc
+	_scanner  msql.Scanner
+	_builder  msql.Builder
+	bind      msql.BindFunc
 }
 
 // TableName anyone wrapper *DefaultDao should write their own
@@ -49,7 +51,7 @@ func (dao *DefaultDao[DObj]) TableName() string { return dao.tableName() }
 // Omits anyone wrapper *DefaultDao should write their own
 func (dao *DefaultDao[DObj]) Omits() []string { return dao.omits() }
 
-func (dao *DefaultDao[DObj]) Init(cons factory.SqlConstructor, tableName func() string, omits func() []string, b factory.BindFunc) {
+func (dao *DefaultDao[DObj]) Init(cons msql.SqlConstructor, tableName func() string, omits func() []string, b msql.BindFunc) {
 	dao._builder = cons.GetBuilder()
 	dao._scanner = cons.GetScanner()
 	dao.omits = omits
@@ -57,15 +59,15 @@ func (dao *DefaultDao[DObj]) Init(cons factory.SqlConstructor, tableName func() 
 	dao.bind = b
 }
 
-func (dao *DefaultDao[DObj]) GetScanner() factory.Scanner {
+func (dao *DefaultDao[DObj]) GetScanner() msql.Scanner {
 	return dao._scanner
 }
 
-func (dao *DefaultDao[DObj]) GetBuilder() factory.Builder {
+func (dao *DefaultDao[DObj]) GetBuilder() msql.Builder {
 	return dao._builder
 }
 
-func (dao *DefaultDao[DObj]) SelectOne(ctx context.Context, db factory.XDB, where map[string]interface{}) (res DObj, err error) {
+func (dao *DefaultDao[DObj]) SelectOne(ctx context.Context, db msql.XDB, where map[string]interface{}) (res DObj, err error) {
 	if nil == db {
 		return res, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -88,7 +90,7 @@ func (dao *DefaultDao[DObj]) SelectOne(ctx context.Context, db factory.XDB, wher
 	return res, err
 }
 
-func (dao *DefaultDao[DObj]) SelectMulti(ctx context.Context, db factory.XDB, where map[string]interface{}) (res []DObj, err error) {
+func (dao *DefaultDao[DObj]) SelectMulti(ctx context.Context, db msql.XDB, where map[string]interface{}) (res []DObj, err error) {
 	if nil == db {
 		return res, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -106,7 +108,7 @@ func (dao *DefaultDao[DObj]) SelectMulti(ctx context.Context, db factory.XDB, wh
 	return res, err
 }
 
-func (dao *DefaultDao[DObj]) Insert(ctx context.Context, db factory.XDB, data []map[string]interface{}) (int64, error) {
+func (dao *DefaultDao[DObj]) Insert(ctx context.Context, db msql.XDB, data []map[string]interface{}) (int64, error) {
 	if nil == db {
 		return 0, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -122,7 +124,7 @@ func (dao *DefaultDao[DObj]) Insert(ctx context.Context, db factory.XDB, data []
 	return result.LastInsertId()
 }
 
-func (dao *DefaultDao[DObj]) Upsert(ctx context.Context, db factory.XDB, data map[string]interface{}) (int64, error) {
+func (dao *DefaultDao[DObj]) Upsert(ctx context.Context, db msql.XDB, data map[string]interface{}) (int64, error) {
 	if nil == db {
 		return 0, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -138,7 +140,7 @@ func (dao *DefaultDao[DObj]) Upsert(ctx context.Context, db factory.XDB, data ma
 	return result.LastInsertId()
 }
 
-func (dao *DefaultDao[DObj]) Update(ctx context.Context, db factory.XDB, where, data map[string]interface{}) (int64, error) {
+func (dao *DefaultDao[DObj]) Update(ctx context.Context, db msql.XDB, where, data map[string]interface{}) (int64, error) {
 	if nil == db {
 		return 0, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -154,7 +156,7 @@ func (dao *DefaultDao[DObj]) Update(ctx context.Context, db factory.XDB, where, 
 	return result.RowsAffected()
 }
 
-func (dao *DefaultDao[DObj]) Delete(ctx context.Context, db factory.XDB, where map[string]interface{}) (int64, error) {
+func (dao *DefaultDao[DObj]) Delete(ctx context.Context, db msql.XDB, where map[string]interface{}) (int64, error) {
 	if nil == db {
 		return 0, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -170,7 +172,7 @@ func (dao *DefaultDao[DObj]) Delete(ctx context.Context, db factory.XDB, where m
 	return result.RowsAffected()
 }
 
-func (dao *DefaultDao[DObj]) CountOf(ctx context.Context, db factory.XDB, where map[string]interface{}) (count int, err error) {
+func (dao *DefaultDao[DObj]) CountOf(ctx context.Context, db msql.XDB, where map[string]interface{}) (count int, err error) {
 	if nil == db {
 		return 0, errors.New("manager.XDB object couldn't be nil")
 	}
@@ -196,13 +198,13 @@ func (dao *DefaultDao[DObj]) CountOf(ctx context.Context, db factory.XDB, where 
 // you can use this default logic or
 // you can build your own query logic with or without tableName or columns
 // depends on your ToSql func
-func ComplexQuery[ans any](tableName string, columns ...string) factory.ComplexQueryMod[ans] {
+func ComplexQuery[ans any](tableName string, columns ...string) msql.ComplexQueryMod[ans] {
 	return func(
 		ctx context.Context,
-		db factory.XDB,
-		scanner factory.Scanner,
-		f factory.ToSql,
-		bind factory.BindFunc,
+		db msql.XDB,
+		scanner msql.Scanner,
+		f msql.ToSql,
+		bind msql.BindFunc,
 	) (res []ans, err error) {
 		if nil == db {
 			return nil, errors.New("manager.XDB object couldn't be nil")
@@ -223,11 +225,11 @@ func ComplexQuery[ans any](tableName string, columns ...string) factory.ComplexQ
 	}
 }
 
-func ComplexExec(tableName string) factory.ComplexExecMod {
+func ComplexExec(tableName string) msql.ComplexExecMod {
 	return func(
 		ctx context.Context,
-		db factory.XDB,
-		f factory.ToSql,
+		db msql.XDB,
+		f msql.ToSql,
 	) (int64, error) {
 		if nil == db {
 			return 0, errors.New("manager.XDB object couldn't be nil")

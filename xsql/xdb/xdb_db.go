@@ -27,14 +27,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Bishoptylaor/go-toolkit/xtime"
-	"github.com/qiguanzhu/infra/gehirn/colorlog"
-	"github.com/qiguanzhu/infra/nerv/magi/xbreaker"
-	"github.com/qiguanzhu/infra/nerv/xtrace"
-	"github.com/qiguanzhu/infra/pkg/consts"
-	"github.com/qiguanzhu/infra/seele/zsql"
-	"github.com/xwb1989/sqlparser"
 	"strings"
+
+	"github.com/xneogo/Z1ON0101/xtrace"
+	"github.com/xneogo/eins/colorlog"
+	"github.com/xneogo/extensions/xbreaker"
+	"github.com/xneogo/extensions/xtime"
+	"github.com/xneogo/matrix/msql"
+	"github.com/xwb1989/sqlparser"
 )
 
 const (
@@ -122,7 +122,7 @@ func (db *DB) GetDb() *sql.DB {
 	return db.db
 }
 
-func (db *DB) TxExecute(ctx context.Context, exec func(db zsql.XDB) error) error {
+func (db *DB) TxExecute(ctx context.Context, exec func(db msql.XDB) error) error {
 	tx, err := db.BeginTx(ctx)
 	if err != nil {
 		colorlog.Errorf(ctx, "start transaction error :  err:%v", err)
@@ -179,19 +179,19 @@ func (db *DB) fetchTableName(query string) (table string) {
 }
 
 // New returns an Option
-func New(dbName, user, password, host string) *zsql.Option {
-	op := &zsql.Option{
+func New(dbName, user, password, host string) *msql.Option {
+	op := &msql.Option{
 		DbName:   dbName,
 		User:     user,
 		Password: password,
 		Host:     host,
 	}
-	op.Port(consts.DefaultPort).Driver(consts.DefaultDriver)
+	op.Port(msql.DefaultPort).Driver(msql.DefaultDriver)
 	return op.Set()
 }
 
 func bCloseConn(key string) bool {
-	if strings.Contains(key, consts.TimeoutMsecKey) || strings.Contains(key, consts.ReadTimeoutMsecKey) || strings.Contains(key, consts.WriteTimeoutMsecKey) || strings.Contains(key, consts.MaxLifeTimeSecKey) {
+	if strings.Contains(key, msql.TimeoutMsecKey) || strings.Contains(key, msql.ReadTimeoutMsecKey) || strings.Contains(key, msql.WriteTimeoutMsecKey) || strings.Contains(key, msql.MaxLifeTimeSecKey) {
 		return true
 	}
 
@@ -199,7 +199,7 @@ func bCloseConn(key string) bool {
 }
 
 func IsReloadConn(key string) bool {
-	if strings.Contains(key, consts.MaxIdleConnsKey) || strings.Contains(key, consts.MaxOpenConnsKey) || strings.Contains(key, consts.MaxLifeTimeSecKey) {
+	if strings.Contains(key, msql.MaxIdleConnsKey) || strings.Contains(key, msql.MaxOpenConnsKey) || strings.Contains(key, msql.MaxLifeTimeSecKey) {
 		return true
 	}
 	return false

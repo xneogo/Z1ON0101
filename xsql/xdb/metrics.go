@@ -25,9 +25,10 @@ package xmanager
 import (
 	"context"
 	"database/sql"
+
 	"github.com/pkg/errors"
-	xprom "github.com/qiguanzhu/infra/nerv/xstat/xmetric/xprometheus"
-	"github.com/qiguanzhu/infra/nerv/xtrace"
+	xprom "github.com/xneogo/Z1ON0101/xstat/xmetric/xprometheus"
+	"github.com/xneogo/Z1ON0101/xtrace"
 )
 
 const namespace = "xsql"

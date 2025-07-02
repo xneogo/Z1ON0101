@@ -26,27 +26,27 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/xneogo/Z1ON0101/xsql/factory"
+	"github.com/xneogo/matrix/msql"
 )
 
 type Condition struct {
 	cons map[string]interface{}
 }
 
-func New() factory.ConditionsProxy {
+func New() msql.ConditionsProxy {
 	return &Condition{
 		cons: make(map[string]interface{}),
 	}
 }
 
 // NewChanges is same as NewCondition used for updates
-func NewChanges() factory.ConditionsProxy {
+func NewChanges() msql.ConditionsProxy {
 	return &Condition{
 		cons: make(map[string]interface{}),
 	}
 }
 
-func (c *Condition) Set(column string, value interface{}) factory.ConditionsProxy {
+func (c *Condition) Set(column string, value interface{}) msql.ConditionsProxy {
 	c.cons[column] = value
 	return c
 }
