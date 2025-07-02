@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Bishoptylaor/go-toolkit/xtime"
 	"github.com/xneogo/Z1ON0101/xlog"
 	"github.com/xneogo/Z1ON0101/xtrace"
+	"github.com/xneogo/extensions/xtime"
 	etcdClient "go.etcd.io/etcd/client/v2"
 )
 
