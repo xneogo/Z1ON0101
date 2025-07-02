@@ -45,7 +45,7 @@
 package xcron
 
 import (
-	"github.com/xneogo/zion/xcron/parser"
+	"github.com/xneogo/Z1ON0101/xcron/parser"
 	"time"
 )
 
@@ -93,6 +93,11 @@ func (c *ExprImpl) Next(t time.Time) time.Time {
 
 	// 如果一年内找不到匹配的时间点，返回零值
 	return time.Time{}
+}
+
+func (c *ExprImpl) matches(t time.Time) bool {
+	// TODO 实现匹配逻辑
+	return false
 }
 
 // NextN 实现 Expr 接口的 NextN 方法

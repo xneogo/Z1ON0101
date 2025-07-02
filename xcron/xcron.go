@@ -27,6 +27,7 @@ import (
 	"reflect"
 
 	"github.com/robfig/cron/v3"
+	"github.com/xneogo/Z1ON0101/xlog"
 )
 
 type XCron struct {
@@ -54,6 +55,7 @@ func (x XCron) Register(rate string, f func()) error {
 		xlog.Errorf(ctx, "Xcron cronJob.AddFunc %s has an error. e: %+v", fnName, err)
 	}
 	xlog.Infof(ctx, "Xcron cronJob.AddFunc %s  id: %d successfully added", fnName, id)
+	return nil
 }
 
 func (x XCron) Run() {
