@@ -30,7 +30,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
-	"github.com/xneogo/eins/colorlog"
+	"github.com/xneogo/extensions/colorlog"
 	"github.com/xneogo/extensions/xbreaker"
 	"github.com/xneogo/extensions/xtime"
 	"github.com/xneogo/matrix/mconfig"

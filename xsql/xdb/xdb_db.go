@@ -30,7 +30,7 @@ import (
 	"strings"
 
 	"github.com/xneogo/Z1ON0101/xtrace"
-	"github.com/xneogo/eins/colorlog"
+	"github.com/xneogo/extensions/colorlog"
 	"github.com/xneogo/extensions/xbreaker"
 	"github.com/xneogo/extensions/xtime"
 	"github.com/xneogo/matrix/msql"
