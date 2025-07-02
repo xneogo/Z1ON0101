@@ -24,7 +24,7 @@ package xsql
 
 import (
 	"database/sql"
-	"github.com/xneogo/zion/xsql/sqlutils"
+	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
 	"time"
 )
 

@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/xneogo/zion/xsql/factory"
+	"github.com/xneogo/Z1ON0101/xsql/factory"
 )
 
 type Condition struct {

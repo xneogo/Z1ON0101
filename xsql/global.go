@@ -24,13 +24,13 @@ package xsql
 
 import (
 	"context"
-	"github.com/xneogo/zion/xsql/sqlutils"
+	"github.com/xneogo/Z1ON0101/xsql/sqlutils"
 
 	"github.com/pkg/errors"
-	"github.com/xneogo/zion/xsql/factory"
-	"github.com/xneogo/zion/xsql/xbuilder"
-	xmanager "github.com/xneogo/zion/xsql/xdb"
-	"github.com/xneogo/zion/xsql/xscanner"
+	"github.com/xneogo/Z1ON0101/xsql/factory"
+	"github.com/xneogo/Z1ON0101/xsql/xbuilder"
+	xmanager "github.com/xneogo/Z1ON0101/xsql/xdb"
+	"github.com/xneogo/Z1ON0101/xsql/xscanner"
 )
 
 var Constructor constructor

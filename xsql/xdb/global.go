@@ -27,14 +27,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Bishoptylaor/go-toolkit/xtime"
 	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
-	"github.com/qiguanzhu/infra/gehirn/colorlog"
 	"github.com/qiguanzhu/infra/nerv/magi/xbreaker"
 	"github.com/qiguanzhu/infra/seele/zconfig"
 	"github.com/qiguanzhu/infra/seele/zconfig/zobserver"
-	"github.com/qiguanzhu/infra/seele/zsql"
+	"github.com/xneogo/Z1ON0101/xsql/factory"
+	"github.com/xneogo/eins/colorlog"
+	"github.com/xneogo/extensions/xtime"
 )
 
 // DBX mapper dbrouter DB
@@ -66,7 +66,7 @@ func init() {
 }
 
 // GetDBDefault generalization of GetDB in Manager
-func GetDBDefault(ctx context.Context) (zsql.XDBWrapper, error) {
+func GetDBDefault(ctx context.Context) (factory.XDBWrapper, error) {
 	return dbManagerSelector.GetDBDefault(ctx)
 }
 

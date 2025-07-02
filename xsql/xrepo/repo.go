@@ -22,7 +22,7 @@
 
 package xrepo
 
-import "github.com/xneogo/zion/xsql/factory"
+import "github.com/xneogo/Z1ON0101/xsql/factory"
 
 // XRepo only for convenient, a wrapper of zsql interfaces
 // to make a difference between fastsql and xsql

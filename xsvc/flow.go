@@ -23,8 +23,8 @@
 package xsvc
 
 import (
-	"github.com/xneogo/zion/xredis"
-	"github.com/xneogo/zion/xsql/factory"
+	"github.com/xneogo/Z1ON0101/xredis"
+	"github.com/xneogo/Z1ON0101/xsql/factory"
 )
 
 type XFlow[EntityObj any] interface {

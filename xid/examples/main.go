@@ -25,7 +25,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/xneogo/zion/xid"
+	"github.com/xneogo/Z1ON0101/xid"
 )
 
 func main() {
