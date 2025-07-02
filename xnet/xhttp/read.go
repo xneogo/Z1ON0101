@@ -32,7 +32,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Bishoptylaor/go-toolkit/xutils"
+	"github.com/xneogo/extensions/xstring"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -114,7 +114,7 @@ func readFile(c *httpConfig) reader {
 				case string:
 					_ = fileContent.WriteField(k, vs)
 				default:
-					_ = fileContent.WriteField(k, xutils.Any2String(v))
+					_ = fileContent.WriteField(k, xstring.Any2String(v))
 				}
 			}
 			_ = fileContent.Close()
@@ -161,7 +161,7 @@ func FormatURLParam(body map[string]any) (urlParam string) {
 	for _, k := range keys {
 		v, ok := body[k].(string)
 		if !ok {
-			v = xutils.Any2String(body[k])
+			v = xstring.Any2String(body[k])
 		}
 		if v != "" {
 			buf.WriteString(url.QueryEscape(k))
