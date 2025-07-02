@@ -25,11 +25,12 @@ package xetcd
 import (
 	"context"
 	"fmt"
-	"github.com/qiguanzhu/infra/nerv/magi/xtime"
-	"github.com/qiguanzhu/infra/nerv/xlog"
-	"github.com/qiguanzhu/infra/nerv/xtrace"
-	etcdClient "go.etcd.io/etcd/client/v2"
 	"time"
+
+	"github.com/Bishoptylaor/go-toolkit/xtime"
+	"github.com/xneogo/Z1ON0101/xlog"
+	"github.com/xneogo/Z1ON0101/xtrace"
+	etcdClient "go.etcd.io/etcd/client/v2"
 )
 
 const (

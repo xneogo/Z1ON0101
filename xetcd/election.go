@@ -30,7 +30,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qiguanzhu/infra/nerv/xlog"
+	"github.com/xneogo/Z1ON0101/xlog"
 	etcd "go.etcd.io/etcd/client/v2"
 )
 
