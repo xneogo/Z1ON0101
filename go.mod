@@ -84,7 +84,7 @@ require (
 	github.com/vaughan0/go-ini v0.0.0-20130923145212-a98ad7ee00ec // indirect
 	github.com/xneogo/eins v0.0.0-20250702071026-607567d87223 // indirect
 	github.com/xneogo/extensions v0.0.0-20250702083918-25d699cb4889 // indirect
-	github.com/xneogo/matrix v0.0.0-20250702091144-a10d44f8443b // indirect
+	github.com/xneogo/matrix v0.0.0-20250703101348-3b3d22d63658 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.1 // indirect
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2 // indirect
