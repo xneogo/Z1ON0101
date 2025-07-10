@@ -1,25 +1,3 @@
-/*
- *  ┏┓      ┏┓
- *┏━┛┻━━━━━━┛┻┓
- *┃　　　━　　  ┃
- *┃   ┳┛ ┗┳   ┃
- *┃           ┃
- *┃     ┻     ┃
- *┗━━━┓     ┏━┛
- *　　 ┃　　　┃神兽保佑
- *　　 ┃　　　┃代码无BUG！
- *　　 ┃　　　┗━━━┓
- *　　 ┃         ┣┓
- *　　 ┃         ┏┛
- *　　 ┗━┓┓┏━━┳┓┏┛
- *　　   ┃┫┫  ┃┫┫
- *      ┗┻┛　 ┗┻┛
- @Time    : 2024/10/28 -- 11:41
- @Author  : 亓官竹 ❤️ MONEY
- @Copyright 2024 亓官竹
- @Description: logger.go
-*/
-
 package xlog
 
 import (
@@ -32,13 +10,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gitee.com/go-mid/infra/xcontext"
-
-	"github.com/shawnfeng/lumberjack.v2"
+	"github.com/xneogo/Z1ON0101/xcontext"
+	"github.com/xneogo/Z1ON0101/xlog/lumberjack"
+	"github.com/xneogo/Z1ON0101/xtrace/typealias"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"gitee.com/go-mid/infra/xtrace/typealias"
 )
 
 // FormatType log format type
