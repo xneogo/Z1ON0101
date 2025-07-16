@@ -14,16 +14,10 @@
  *　　 ┗━┓┓┏━━┳┓┏┛
  *　　   ┃┫┫  ┃┫┫
  *      ┗┻┛　 ┗┻┛
- @Time    : 2025/4/15 -- 12:05
+ @Time    : 2025/7/3 -- 18:47
  @Author  : 亓官竹 ❤️ MONEY
  @Copyright 2025 亓官竹
- @Description: xmq xmq/global.go
+ @Description: xcache xcache/gcache.go
 */
 
-package xmq
-
-type KafkaQueue struct{}
-
-type DelayQueue struct{}
-
-type PulsarQueue struct{}
+package xcache

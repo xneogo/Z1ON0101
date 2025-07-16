@@ -14,16 +14,25 @@
  *　　 ┗━┓┓┏━━┳┓┏┛
  *　　   ┃┫┫  ┃┫┫
  *      ┗┻┛　 ┗┻┛
- @Time    : 2025/4/15 -- 12:05
+ @Time    : 2025/7/3 -- 17:58
  @Author  : 亓官竹 ❤️ MONEY
  @Copyright 2025 亓官竹
- @Description: xmq xmq/global.go
+ @Description: xcacheconf xcache/xcacheconf/conf.go
 */
 
-package xmq
+package xcache
 
-type KafkaQueue struct{}
+type CacheType int
 
-type DelayQueue struct{}
+const (
+	CacheTypeRedis CacheType = iota
+)
 
-type PulsarQueue struct{}
+func (t CacheType) String() string {
+	switch t {
+	case CacheTypeRedis:
+		return "redis"
+	default:
+		return ""
+	}
+}
